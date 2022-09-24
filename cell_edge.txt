@@ -1,0 +1,277 @@
+AND2
+
+A:0
+B:1
+Y:2
+VDD:3
+VSS:4
+mp1:5
+mp2:6
+mp0:7
+mn1:8
+mn2:9
+mn0:10
+
+
+
+mp1->n0                    (1)
+B->mp1                   1,5
+VDD->mp1                 3,5 
+
+mp2->Y                   6,2
+n0->mp2                    (2)                 
+VDD->mp2                 3,6                  
+
+mp0->n0                    (3)
+A->mp0                   0,7                
+VDD->mp0                 3,7
+
+mn1->net6                  (4)
+A->mn1                   0,8
+n0->mn1                    (5)
+
+mn2->VSS                 9,4
+n0->mn2                    (6)
+Y->mn2                   2,9
+
+mn0->VSS                 10,4
+B->mn0                   1,10
+net6->mn0                  (7)
+
+
+
+以n0为end   [mp1,mp0]
+以n0为start [mp2,mn1,mn2]
+因为在真实电路网表上表现为这些点互相是通过n0这条线直接互联的，因此两两组合产生2x3=6条有向边
+mp1->mp2                 5,6
+mp1->mn1                 5,8
+mp1->mn2                 5,9
+mp0->mp2                 7,6
+mp0->mn1                 7,8
+mp0->mn2                 7,9
+
+以net6为end   [mn1]
+以net6为start [mn0]
+产生一条边    mn1->mn0   8,10
+
+
+BUFX1
+
+VSS   0
+VDD   1
+A     2
+Y     3
+mp1   4
+mp0   5
+mn1   6
+mn0   7
+
+mp1->Y      4,3
+n0->mp1     (1)
+VDD->mp1    1,4
+
+mp0->n0     (2)
+A->mp0      2,5
+VDD->mp0    1,5
+
+mn1->Y      6,3
+n0->mn1     (3)
+VSS->mn1    0,6
+
+mn0->n0     (4)
+A->mn0      2,7
+VSS->mn0    0,7
+
+以n0为end     [mp0 mn0]
+以n0为start   [mp1 mn1]
+
+产生的边 mp0->mp1  5->4
+         mp0->mn1  5->6
+		 mn0->mp1  7->4
+		 mn0->mn1  7->6
+
+
+NAND2:
+网表中的transistor的分布为(S,G,D)
+VSS 0
+VDD 1
+A   2
+B   3
+Y   4
+mn0  5
+mn1  6
+mp1  7
+mp0  8
+
+mn0->VSS    5,2
+A->mn0      2,5
+n0->mn0     (1)
+
+mn1->n0     (2)
+B->mn1      3,6
+Y->mn1      4,6
+
+mp1->Y      7,4
+B->mp1      3,7
+VDD->mp1    1,7
+     
+
+mp0->Y      8,4
+A->mp0      2,8
+VDD->mp0    1,8
+
+
+从(1)和(2)来看，可以新生成1条有向边
+mn1->mn0   6,5
+
+OR
+
+VSS    0
+VDD    1
+A      2
+B      3
+Y      4
+mp2    5
+mp0    6
+mp1    7
+mn2    8
+mn0    9
+mn1    10
+
+mp2->Y        5,4   
+n0->mp2       (1)
+VDD->mp2      1,5
+
+mp0->n1       (2)
+A->mp0        2,6
+VDD->mp0      1,6
+
+mp1->n0       (3)
+B->mp1        3,7
+n1->mp1       (4)
+
+mn2->VSS      8,0
+n0->mn2       (5)
+Y->mn2        4,8
+
+mn0->VSS      9,0
+A->mn0        2,9
+n0->mn0       (6)
+
+mn1->VSS      10,0
+B->mn1        3,10
+n0->mn1       (7)
+
+ends with n0  [mp1]
+starts with n0 [mn1, mn0, mn2, mp2]
+
+产生4条edge
+mp1->mn1     7,10
+mp1->mn0     7,9
+mp1->mn2     7,8
+mp1->mp2     7,5
+
+ends with n1 [mp0]
+starts with n1[mp1]
+产生1条edge
+mp0->mp1     6,7
+
+XOR
+
+VSS  0
+VDD  1
+A    2
+B    3
+Y    4
+mp4  5
+mp2  6
+mp1  7
+mp0  8
+mp5  9
+mp3  10
+mn3  11
+mn4  12
+mn1  13
+mn0  14
+mn5  15
+mn2  16
+
+mp4->n1                 (1)
+B->mp4                  3,5
+n0->mp4                 (2)
+
+mp2->net26              (3)
+n1->mp2                 (4)
+VDD->mp2                1,6
+
+mp1->n2                 (5)
+B->mp1                  3,7
+VDD->mp1                1,7
+
+mp0->n1                 (6)
+A->mp0                  2,8
+VDD->mp0                1,8
+
+mp5->Y                  9,4                
+n0->mp5                 (7)
+VDD->mp5                1,9
+
+mp3->n0                 (8)
+n2->mp3                 (9)
+net26->mp3              (10)
+
+mn3->net27              (11)
+B->mn3                  3,11
+n0->mn3                 (12)
+
+mn4->n1                 (13)
+n2->mn4                 (14)
+n0->mn4                 (15)
+
+mn1->VSS                13,0
+B->mn1                  3,13
+n2->mn1                 (16)
+
+mn0->VSS                14,0
+A->mn0                  2,14
+n1->mn0                 (17)
+
+mn5->VSS                15,0
+n0->mn5                 (18)
+Y->mn5                  4,15
+
+mn2->VSS                16,0
+n1->mn2                 (19)
+net27->mn2              (20)
+
+ends with n0             [mp3]
+starts with n0           [mp4 mp5 mn3 mn4 mn5]
+mp3->mp4                10,5
+mp3->mp5                10,9
+mp3->mn3                10,11
+mp3->mn4                10,12
+mp3->mn5                10,15
+
+ends with n1             [mp4 mp0 mn4]
+starts with n1           [mp2 mn0 mn2]
+mp4->mp2                5,6
+mp4->mn0                5,14
+mp4->mn2                5,16
+mp0->mp2                8,6
+mp0->mn0                8,14
+mp0->mn2                8,16
+mn4->mp2                12,6
+mn4->mn0                12,14
+mn4->mn2                12,16
+
+ends with n2             [mp1]
+starts with n2           [mp3 mn4 mn1]
+mp1->mp3                 7,10
+mp1->mn4                 7,12
+mp1->mn1                 7,13
+
+net26:
+mp2->mp3                 6,10
+
+net27:
+mn3->mn2                 11,16
