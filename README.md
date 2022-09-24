@@ -11,3 +11,20 @@ Dataset_gen.py is for building GCN dataset which contains the transformed graph 
 train_test_GCN.py is training and testing program for GCN
 
 Up to now, the accuracy of prediction whether a certain set of parameters [VDD, mu, Vth, SS, Cox, RCS, RCD] can successfully generate a standard cell with normal logic function is 77%
+
+Definition of standard cell graph node features:
+Input_pin:[1,0,0,0,0,0,0,0]
+Ouptut_pin:[2,0,0,0,0,0,0,0]
+VDD_pin:[4,VDD,0,0,0,0,0,0]
+GND_pin:[5,0,0,0,0,0,0,0]
+N-FET:[3,-1,MU, COX, VTO, VSS, RCS, RCD]
+P-FET:[3,1,MU, COX, VTO, VSS, RCS, RCD]
+
+Definition of standard cell graph edge directions:
+Input_pin:out
+Ouptut_pin:in
+VDD_pin:out
+GND_pin:in
+FET_G:in
+FET_D:in
+FET_S:out
