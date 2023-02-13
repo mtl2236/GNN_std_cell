@@ -3,7 +3,7 @@ import os
 import string
 import numpy as np
 #get all the subfolder names at base path
-Base_path='/simulation/tianliang/original_data'
+Base_path='/simulation/tianliang/Github/GNN_std_cell/original_data'
 subfolderlist=[]
 Cell_list=[]
 
@@ -144,7 +144,7 @@ def Calculate_PDP(path):
             #print(PDP_rise_rawdata)
             #print(PDP_fall_rawdata)
         #print(Cell_Begin_End_Pair)
-        if(original_PDP==1e+31):
+        if(original_PDP>1e+10):
             Cell_Begin_End_Pair[n]['succeed_fail']=0
     f.close()  
     return Cell_Begin_End_Pair
@@ -210,6 +210,7 @@ for i in range(len(subfolderlist)):
         f=open(travel_dir+'/tcl/char.tcl','r') #get VDD values
         char_tcl=f.readlines()
         VDD=char_tcl[8].strip().split(' ')[-1]
+        VDD=str((float(VDD)-0.5)/(3-0.5))            #normalize
         #print(VDD)
         f.close()
         f=open(travel_dir+'/netlist/INVX1.scs','r') #get MU COX VTO VSS RCS RCD
@@ -217,21 +218,27 @@ for i in range(len(subfolderlist)):
         INVX_scs=f.readlines()
         MU_str=INVX_scs[14].split(' ')[7]
         MU=MU_str[3:]
+        MU=str((float(MU)-5)/(100-5))             #normalize
         seven_dimensional.append(MU)
         COX_str=INVX_scs[14].split(' ')[8]
         COX=COX_str[4:]
+        COX=str((float(COX)-50e-09)/(160e-09-50e-09))             #normalize
         seven_dimensional.append(COX)
         VTO_str=INVX_scs[14].split(' ')[13]
         VTO=VTO_str[4:]
+        VTO=str((float(VTO)-0.3)/(1.3-0.3))             #normalize
         seven_dimensional.append(VTO)
         VSS_str=INVX_scs[14].split(' ')[21]
         VSS=VSS_str[4:]
+        VSS=str((float(VSS)-0.06)/(0.3-0.06))              #normalize
         seven_dimensional.append(VSS)
         RCS_str=INVX_scs[14].split(' ')[28]
         RCS=RCS_str[4:]
+        RCS=str((float(RCS)-500)/(3000-500))             #normalize 
         seven_dimensional.append(RCS)
         RCD_str=INVX_scs[14].split(' ')[29]
         RCD=RCD_str[4:]
+        RCD=str((float(RCD)-500)/(3000-500))             #normalize
         seven_dimensional.append(RCD)
         seven_dimensional.append(VDD)
         if(seven_dimensional not in seven_dimensional_list): #remove redundant 7 variable parameters results
@@ -265,50 +272,50 @@ OR_file=f.readlines()
 f.close()
 
 for i in range(len(Cell_list)):
-    INV_file[10]='                '+'[4, '+seven_dimensional_list[i][6]+', 0, 0, 0, 0, 0, 0],'+'\n'
-    INV_file[13]='                '+'[3, -1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
-    INV_file[14]='                '+'[3, 1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'    
+    INV_file[10]='                '+'[4, '+seven_dimensional_list[i][6]+', 0, 0, 0, 0, 0, 0, 0],'+'\n'
+    INV_file[13]='                '+'[3, 0, -1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
+    INV_file[14]='                '+'[3, 0, 1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'    
     INV_file[17]='        y=torch.tensor(['+str(Cell_list[i][2]['succeed_fail'])+'])'+'\n'
     INV_file[18]='        '+'data'+str(6*i)+' = Data(x=x, y=y, edge_index=edge_index)'+'\n'
     INV_file[19]='        data_list.append(data'+str(6*i)+')'+'\n'
     
-    AND2_file[12]='                '+'[4, '+seven_dimensional_list[i][6]+', 0, 0, 0, 0, 0, 0],'+'\n'
-    AND2_file[14]='                '+'[3, 1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
+    AND2_file[12]='                '+'[4, '+seven_dimensional_list[i][6]+', 0, 0, 0, 0, 0, 0, 0],'+'\n'
+    AND2_file[14]='                '+'[3, 0, 1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
     AND2_file[15]=AND2_file[14]
     AND2_file[16]=AND2_file[14]
-    AND2_file[17]='                '+'[3, -1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
+    AND2_file[17]='                '+'[3, 0, -1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
     AND2_file[18]=AND2_file[17]
     AND2_file[19]=AND2_file[17]
     AND2_file[22]='        y=torch.tensor(['+str(Cell_list[i][0]['succeed_fail'])+'])'+'\n'
     AND2_file[23]='        '+'data'+str(6*i+1)+' = Data(x=x, y=y, edge_index=edge_index)'+'\n'
     AND2_file[24]='        data_list.append(data'+str(6*i+1)+')'+'\n'
     
-    BUF_file[10]='                '+'[4, '+seven_dimensional_list[i][6]+', 0, 0, 0, 0, 0, 0],'+'\n'
-    BUF_file[13]='                '+'[3, 1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
+    BUF_file[10]='                '+'[4, '+seven_dimensional_list[i][6]+', 0, 0, 0, 0, 0, 0, 0],'+'\n'
+    BUF_file[13]='                '+'[3, 0, 1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
     BUF_file[14]=BUF_file[13]
-    BUF_file[15]='                '+'[3, -1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
+    BUF_file[15]='                '+'[3, 0, -1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
     BUF_file[16]=BUF_file[15]
     BUF_file[19]='        y=torch.tensor(['+str(Cell_list[i][1]['succeed_fail'])+'])'+'\n'
     BUF_file[20]='        '+'data'+str(6*i+2)+' = Data(x=x, y=y, edge_index=edge_index)'+'\n'
     BUF_file[21]='        data_list.append(data'+str(6*i+2)+')'+'\n'
     
-    NAND2_file[10]='                '+'[4, '+seven_dimensional_list[i][6]+', 0, 0, 0, 0, 0, 0],'+'\n'
-    NAND2_file[14]='                '+'[3, -1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
+    NAND2_file[10]='                '+'[4, '+seven_dimensional_list[i][6]+', 0, 0, 0, 0, 0, 0, 0],'+'\n'
+    NAND2_file[14]='                '+'[3, 0, -1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
     NAND2_file[15]=NAND2_file[14]
-    NAND2_file[16]='                '+'[3, 1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
+    NAND2_file[16]='                '+'[3, 0, 1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
     NAND2_file[17]=NAND2_file[16]
     NAND2_file[20]='        y=torch.tensor(['+str(Cell_list[i][3]['succeed_fail'])+'])'+'\n'
     NAND2_file[21]='        '+'data'+str(6*i+3)+' = Data(x=x, y=y, edge_index=edge_index)'+'\n'
     NAND2_file[22]='        data_list.append(data'+str(6*i+3)+')'+'\n'
     
-    XOR_file[10]='                '+'[4, '+seven_dimensional_list[i][6]+', 0, 0, 0, 0, 0, 0],'+'\n'
-    XOR_file[14]='                '+'[3, 1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
+    XOR_file[10]='                '+'[4, '+seven_dimensional_list[i][6]+', 0, 0, 0, 0, 0, 0, 0],'+'\n'
+    XOR_file[14]='                '+'[3, 0, 1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
     XOR_file[15]=XOR_file[14]
     XOR_file[16]=XOR_file[14]
     XOR_file[17]=XOR_file[14]
     XOR_file[18]=XOR_file[14]
     XOR_file[19]=XOR_file[14]
-    XOR_file[20]='                '+'[3, -1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
+    XOR_file[20]='                '+'[3, 0, -1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
     XOR_file[21]=XOR_file[20]
     XOR_file[22]=XOR_file[20]
     XOR_file[23]=XOR_file[20]
@@ -318,11 +325,11 @@ for i in range(len(Cell_list)):
     XOR_file[29]='        '+'data'+str(6*i+4)+' = Data(x=x, y=y, edge_index=edge_index)'+'\n'
     XOR_file[30]='        data_list.append(data'+str(6*i+4)+')'+'\n'
     
-    OR_file[10]='                '+'[4, '+seven_dimensional_list[i][6]+', 0, 0, 0, 0, 0, 0],'+'\n'
-    OR_file[14]='                '+'[3, 1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
+    OR_file[10]='                '+'[4, '+seven_dimensional_list[i][6]+', 0, 0, 0, 0, 0, 0, 0],'+'\n'
+    OR_file[14]='                '+'[3, 0, 1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
     OR_file[15]=OR_file[14]
     OR_file[16]=OR_file[14]
-    OR_file[17]='                '+'[3, -1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
+    OR_file[17]='                '+'[3, 0, -1, '+seven_dimensional_list[i][0]+', '+seven_dimensional_list[i][1]+', '+seven_dimensional_list[i][2]+', '+seven_dimensional_list[i][3]+', '+seven_dimensional_list[i][4]+', '+seven_dimensional_list[i][5]+'],'+'\n'
     OR_file[18]=OR_file[17]
     OR_file[19]=OR_file[17]
     OR_file[22]='        y=torch.tensor(['+str(Cell_list[i][4]['succeed_fail'])+'])'+'\n'

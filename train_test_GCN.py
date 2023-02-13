@@ -19,8 +19,8 @@ dataset = MyOwnDataset("MYdata")
 torch.manual_seed(12345)
 dataset = dataset.shuffle()
 
-train_dataset = dataset[:20000]
-test_dataset = dataset[20000:]
+train_dataset = dataset[:10000]
+test_dataset = dataset[10000:]
 
 #print(f'Number of training graphs: {len(train_dataset)}')
 #print(f'Number of test graphs: {len(test_dataset)}')
@@ -88,6 +88,10 @@ def test(loader):
     for data in loader:                            # 批遍历测试集数据集。
         out = model(data.x, data.edge_index, data.batch) # 一次前向传播
         pred = out.argmax(dim=1)                         # 使用概率最高的类别
+        print('this is pred')
+        print(pred)
+        print('this is data.y')
+        print(data.y)
         correct += int((pred == data.y).sum())           # 检查真实标签
     return correct / len(loader.dataset)
 
